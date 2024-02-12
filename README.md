@@ -1,10 +1,10 @@
-# MongoVault（MongoDB 备份与恢复）
+# MongoVault（带有自动备份和恢复功能的 MongoDB 镜像）
 本文档介绍如何使用 `datamini/mongo-vault` 镜像运行 MongoDB 数据库，并同时自动化备份数据到阿里云 OSS，以及如何从备份中恢复数据。
 
 该镜像基于 mongo:5.0.22。
 
 
-## 功能1. 运行一个新的MongoDB，并配置每天3点的备份任务
+## 功能1. 运行一个新的MongoDB，自动在每天3点备份并保存到云端
 
 使用以下命令：
 
