@@ -8,7 +8,7 @@ if [ -z "$MONGO_VAULT_OSS_AK" ] || [ -z "$MONGO_VAULT_OSS_SK" ] || [ -z "$MONGO_
 fi
 
 # 配置 OSS 工具
-ossutil64 config -e $MONGO_VAULT_OSS_ENDPOINT -i $MONGO_VAULT_OSS_AK -k $MONGO_VAULT_OSS_SK
+ossutil config -e $MONGO_VAULT_OSS_ENDPOINT -i $MONGO_VAULT_OSS_AK -k $MONGO_VAULT_OSS_SK
 
 # 定义备份目录
 CURRENT_MONTH=$(date +%Y-%m)
@@ -24,7 +24,7 @@ fi
 
 # 为每个数据库执行备份
 for DB in $DATABASES; do
-  mongodump --db $DB --archive --gzip | ossutil64 cp - oss://$MONGO_VAULT_OSS_BUCKET/$BACKUP_PATH/${DB}.gz
+  mongodump --db $DB --archive --gzip | ossutil cp - oss://$MONGO_VAULT_OSS_BUCKET/$BACKUP_PATH/${DB}.gz
 done
 
 echo "Backup completed. Files are stored in $BACKUP_PATH."

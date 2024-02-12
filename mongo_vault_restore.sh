@@ -8,13 +8,13 @@ if [ -z "$MONGO_VAULT_OSS_AK" ] || [ -z "$MONGO_VAULT_OSS_SK" ] || [ -z "$MONGO_
 fi
 
 # 配置 OSS 工具
-ossutil64 config -e $MONGO_VAULT_OSS_ENDPOINT -i $MONGO_VAULT_OSS_AK -k $MONGO_VAULT_OSS_SK
+ossutil config -e $MONGO_VAULT_OSS_ENDPOINT -i $MONGO_VAULT_OSS_AK -k $MONGO_VAULT_OSS_SK
 
 # 查找最新的月份目录
-LATEST_MONTH_DIR=$(ossutil64 ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/ | awk '{print $NF}' | sort -r | head -n 1)
+LATEST_MONTH_DIR=$(ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/ | awk '{print $NF}' | sort -r | head -n 1)
 
 # 在最新的月份目录中查找最新的备份目录
-LATEST_BACKUP_DIR=$(ossutil64 ls $LATEST_MONTH_DIR | awk '{print $NF}' | sort -r | head -n 1)
+LATEST_BACKUP_DIR=$(ossutil ls $LATEST_MONTH_DIR | awk '{print $NF}' | sort -r | head -n 1)
 
 # 解析需要恢复的数据库列表
 DB_MAP="$1"
@@ -23,7 +23,7 @@ DB_MAP="$1"
 # 恢复数据库
 if [ -z "$DB_MAP" ]; then
   # 没有指定数据库，恢复该备份目录下的所有数据库
-  ossutil64 cp -r $LATEST_BACKUP_DIR /tmp/mongo_vault_restore/ --include "*.gz"
+  ossutil cp -r $LATEST_BACKUP_DIR /tmp/mongo_vault_restore/ --include "*.gz"
   for BACKUP_FILE in /tmp/mongo_vault_restore/*.gz; do
     DB_NAME=$(basename $BACKUP_FILE .gz)
     if mongo $DB_NAME --eval "db.stats()" >/dev/null 2>&1; then
@@ -37,8 +37,8 @@ else
   IFS=',' read -ra DB_NAMES <<< "$DB_MAP"
   for DB_NAME in "${DB_NAMES[@]}"; do
     BACKUP_FILE_PATH="$LATEST_BACKUP_DIR/${DB_NAME}.gz"
-    if ossutil64 stat $BACKUP_FILE_PATH >/dev/null 2>&1; then
-      ossutil64 cp $BACKUP_FILE_PATH /tmp/${DB_NAME}.gz
+    if ossutil stat $BACKUP_FILE_PATH >/dev/null 2>&1; then
+      ossutil cp $BACKUP_FILE_PATH /tmp/${DB_NAME}.gz
       mongorestore --gzip --archive=/tmp/${DB_NAME}.gz
     else
       echo "Backup file for database $DB_NAME not found."

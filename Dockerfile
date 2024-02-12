@@ -2,8 +2,10 @@
 FROM mongo:5.0.22
 
 # 安装必要的工具
-RUN apt-get update && apt-get install -y cron python3 python3-pip && \
-    pip3 install oss2
+RUN apt-get update && apt-get install -y cron && apt-get clean
+
+# 安装ossutil
+RUN curl https://gosspublic.alicdn.com/ossutil/install.sh | bash
 
 # 将备份脚本和恢复脚本添加到容器中
 COPY mongo_vault_backup.sh /usr/local/bin/mongo_vault_backup
@@ -17,15 +19,15 @@ RUN chmod +x /usr/local/bin/mongo_vault_backup && \
 
 # 设置环境变量
 ENV ENABLE_MONGO_VAULT_BACKUP=false \
-    MONGO_VAULT_BACKUP_DATABASES=test \
+    MONGO_VAULT_BACKUP_DATABASES="" \
     MONGO_VAULT_BACKUP_SCHEDULE="0 3 * * *" \
-    MONGO_VAULT_OSS_AK=yourAccessKeyId \
-    MONGO_VAULT_OSS_SK=yourAccessKeySecret \
-    MONGO_VAULT_OSS_ENDPOINT=yourEndpoint \
-    MONGO_VAULT_OSS_BUCKET=yourBucketName \
-    MONGO_VAULT_OSS_URI_PREFIX=yourUriPrefix \
+    MONGO_VAULT_OSS_AK="" \
+    MONGO_VAULT_OSS_SK="" \
+    MONGO_VAULT_OSS_ENDPOINT="" \
+    MONGO_VAULT_OSS_BUCKET="" \
+    MONGO_VAULT_OSS_URI_PREFIX="" \
     ENABLE_MONGO_VAULT_RESTORE=false \
-    MONGO_VAULT_RESTORE_DATABASES=test
+    MONGO_VAULT_RESTORE_DATABASES=""
 
 # 容器启动时执行的命令
 ENTRYPOINT ["mongo_vault_entrypoint"]
