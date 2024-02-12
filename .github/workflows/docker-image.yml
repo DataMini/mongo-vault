@@ -36,5 +36,7 @@ jobs:
         context: . # 使用当前目录作为上下文
         file: Dockerfile # Dockerfile的位置
         push: true # 推送镜像到Docker Hub
-        tags: datamini/mongo-vault:${{ env.VERSION }} # 使用git tag 作为镜像tag
+        tags: |
+          - datamini/mongo-vault:${{ env.VERSION }} # 使用git tag 作为镜像tag
+          - datamini/mongo-vault:latest
         platforms: linux/amd64,linux/arm64
