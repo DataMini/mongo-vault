@@ -2,7 +2,7 @@
 FROM mongo:5.0.22
 
 # 安装必要的工具
-RUN apt-get update && apt-get install -y cron && apt-get clean
+RUN apt-get update && apt-get install -y cron curl unzip && apt-get clean
 
 # 安装ossutil
 RUN curl https://gosspublic.alicdn.com/ossutil/install.sh | bash
