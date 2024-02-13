@@ -2,7 +2,7 @@
 # 列出最近一个月备份文件的脚本
 
 # 检查必要的环境变量
-if [ -z "$MONGO2OSS_OSS_AK" ] || [ -z "$MONGO2OSS_OSS_SK" ] || [ -z "$MONGO2OSS_OSS_BUCKET" ] || [ -z "$MONGO2OSS_OSS_URI_PREFIX" ] || [ -z "$MONGO2OSS_OSS_ENDPOINT" ]; then
+if [ -z "$MONGO_VAULT_OSS_AK" ] || [ -z "$MONGO_VAULT_OSS_SK" ] || [ -z "$MONGO_VAULT_OSS_BUCKET" ] || [ -z "$MONGO_VAULT_OSS_URI_PREFIX" ] || [ -z "$MONGO_VAULT_OSS_ENDPOINT" ]; then
   echo "One or more environment variables required for listing backups are missing."
   exit 1
 fi
