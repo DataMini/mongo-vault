@@ -11,11 +11,13 @@ RUN curl https://gosspublic.alicdn.com/ossutil/install.sh | bash
 COPY mongo_vault_backup.sh /usr/local/bin/mongo_vault_backup
 COPY mongo_vault_restore.sh /usr/local/bin/mongo_vault_restore
 COPY mongo_vault_entrypoint.sh /usr/local/bin/mongo_vault_entrypoint
+COPY mongo_vault_list_backup.sh /usr/local/bin/mongo_vault_list_backup
 
 # 使脚本可执行
 RUN chmod +x /usr/local/bin/mongo_vault_backup && \
     chmod +x /usr/local/bin/mongo_vault_restore && \
-    chmod +x /usr/local/bin/mongo_vault_entrypoint
+    chmod +x /usr/local/bin/mongo_vault_entrypoint && \
+    chmod +x /usr/local/bin/mongo_vault_list_backup
 
 # 设置环境变量
 ENV ENABLE_MONGO_VAULT_BACKUP=false \

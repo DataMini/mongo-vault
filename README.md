@@ -45,9 +45,9 @@ services:
 ```
 
 注意：
-1. `ENABLE_MONGO_VAULT_BACKUP` 为true，意味着将打开数据库的自动备份。
-2. `MONGO_VAULT_BACKUP_DATABASES` 为需要备份的数据库列表，以`,`分隔。
-3. `MONGO_VAULT_BACKUP_SCHEDULE` 为备份任务的定时规则，使用Cron表达式。
+1. `ENABLE_MONGO_VAULT_BACKUP` 为true，意味着将打开数据库的自动备份。默认为false。
+2. `MONGO_VAULT_BACKUP_DATABASES` 为需要备份的数据库列表，以`,`分隔。若不填写则默认备份全部数据库。
+3. `MONGO_VAULT_BACKUP_SCHEDULE` 为备份任务的定时规则，使用Cron表达式，若不填写则默认为每天3点。
 4. `MONGO_VAULT_OSS_AK`、`MONGO_VAULT_OSS_SK`、`MONGO_VAULT_OSS_ENDPOINT`、`MONGO_VAULT_OSS_BUCKET`、`MONGO_VAULT_OSS_URI_PREFIX` 为阿里云OSS的相关配置。
 5. 备份文件在OSS中的目录结构为：`MONGO_VAULT_OSS_URI_PREFIX/2024-02/20240201033000/`。
 6. `MONGO_INITDB_ROOT_USERNAME` 和 `MONGO_INITDB_ROOT_PASSWORD` 为MongoDB的root用户的用户名和密码。继承自mongo官方镜像，使用说明参考 [https://hub.docker.com/_/mongo](https://hub.docker.com/_/mongo)
