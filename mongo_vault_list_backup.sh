@@ -17,7 +17,7 @@ LAST_MONTH=$(date +%Y-%m --date="1 month ago")
 echo "Listing backups for $CURRENT_MONTH and $LAST_MONTH..."
 
 # 列出当前月份和上一个月份的备份文件
-ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/$CURRENT_MONTH/ --recursive
-ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/$LAST_MONTH/ --recursive
+ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/$CURRENT_MONTH/
+ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/$LAST_MONTH/
 
 echo "Backup listing completed."
