@@ -20,7 +20,7 @@ echo "Backup path is $BACKUP_PATH."
 # 获取所有数据库列表或使用指定的数据库
 if [ -z "$MONGO_VAULT_BACKUP_DATABASES" ]; then
   echo "No databases specified, backing up all databases."
-  DATABASES=$(mongo --quiet --eval "db.adminCommand('listDatabases').databases.map(db => db.name).join(' ')")
+  DATABASES=$(mongo --quiet -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --eval "db.getMongo().getDBNames().join(' ');" | tail -n1)
 else
   echo "Backing up specified databases: $MONGO_VAULT_BACKUP_DATABASES"
   DATABASES=$(echo $MONGO_VAULT_BACKUP_DATABASES | tr ',' ' ')
