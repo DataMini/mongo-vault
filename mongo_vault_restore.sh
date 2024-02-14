@@ -20,7 +20,6 @@ echo "Latest backup directory is $LATEST_BACKUP_DIR."
 
 # 解析需要恢复的数据库列表
 DB_MAP="$1"
-# [ -z "$DB_MAP" ] && DB_MAP=$MONGO_VAULT_RESTORE_DATABASES || echo "Using database map from argument."
 
 if [ -z "$DB_MAP" ]; then
   echo "Using database map from environment variable."
@@ -29,37 +28,43 @@ else
   echo "Using database map from argument."
 fi
 
-# 恢复数据库
+
+# 检查是否设置了数据库列表环境变量
 if [ -z "$DB_MAP" ]; then
-  # 没有指定数据库，恢复该备份目录下的所有数据库
-  echo "No database specified, restoring all databases from $LATEST_BACKUP_DIR."
+  echo "No specific databases to restore, restoring all databases from $LATEST_BACKUP_DIR."
   ossutil cp -r $LATEST_BACKUP_DIR /tmp/mongo_vault_restore/ --include "*.gz"
   for BACKUP_FILE in /tmp/mongo_vault_restore/*.gz; do
     DB_NAME=$(basename $BACKUP_FILE .gz)
     echo "Restoring database $DB_NAME from $BACKUP_FILE..."
-    if mongo $DB_NAME --eval "db.stats()" >/dev/null 2>&1; then
+    if mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD $DB_NAME --eval "db.stats()" >/dev/null 2>&1; then
       echo "Database $DB_NAME exists, skipping."
     else
       echo "Restoring database $DB_NAME..."
-      mongorestore --gzip --archive=$BACKUP_FILE
+      mongorestore -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --gzip --archive=$BACKUP_FILE
       echo "Database $DB_NAME restored."
     fi
   done
 else
-  # 恢复指定的数据库
   echo "Restoring specified databases: $DB_MAP"
-  IFS=',' read -ra DB_NAMES <<< "$DB_MAP"
-  for DB_NAME in "${DB_NAMES[@]}"; do
-    BACKUP_FILE_PATH="$LATEST_BACKUP_DIR/${DB_NAME}.gz"
-    echo "Restoring database $DB_NAME from $BACKUP_FILE_PATH..."
+  IFS=',' read -ra DB_PAIRS <<< "$DB_MAP"
+  for PAIR in "${DB_PAIRS[@]}"; do
+    IFS=':' read -ra NAMES <<< "$PAIR"
+    ORIG_NAME="${NAMES[0]}"
+    NEW_NAME="${NAMES[1]:-$ORIG_NAME}" # 使用提供的新名称或者如果未提供则使用原名称
+    BACKUP_FILE_PATH="$LATEST_BACKUP_DIR/${ORIG_NAME}.gz"
+    echo "Restoring database $ORIG_NAME to $NEW_NAME from $BACKUP_FILE_PATH..."
     if ossutil stat $BACKUP_FILE_PATH >/dev/null 2>&1; then
-      echo "Downloading backup file for database $DB_NAME..."
-      ossutil cp $BACKUP_FILE_PATH /tmp/${DB_NAME}.gz
-      echo "Restoring database $DB_NAME..."
-      mongorestore --gzip --archive=/tmp/${DB_NAME}.gz
-      echo "Database $DB_NAME restored."
+      echo "Downloading backup file for database $ORIG_NAME..."
+      ossutil cp $BACKUP_FILE_PATH /tmp/${ORIG_NAME}.gz
+      if mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD $NEW_NAME --eval "db.stats()" >/dev/null 2>&1; then
+        echo "Database $NEW_NAME exists, skipping."
+      else
+        echo "Restoring database $ORIG_NAME as $NEW_NAME..."
+        mongorestore -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --gzip --archive=/tmp/${ORIG_NAME}.gz --nsFrom="${ORIG_NAME}.*" --nsTo="${NEW_NAME}.*"
+        echo "Database $ORIG_NAME restored as $NEW_NAME."
+      fi
     else
-      echo "Backup file for database $DB_NAME not found."
+      echo "Backup file for database $ORIG_NAME not found."
     fi
   done
 fi
