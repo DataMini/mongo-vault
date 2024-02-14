@@ -19,10 +19,10 @@ if [ "$OBJECT_COUNT" == "0" ]; then
 fi
 
 # 查找最新的月份目录
-LATEST_MONTH_DIR=$(ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/ | awk '{print $NF}' | sort -r | head -n 1)
+LATEST_MONTH_DIR=$(ossutil ls -d oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/ | grep "oss://" | sort -r | head -n 1)
 
 # 在最新的月份目录中查找最新的备份目录
-LATEST_BACKUP_DIR=$(ossutil ls $LATEST_MONTH_DIR | awk '{print $NF}' | sort -r | head -n 1)
+LATEST_BACKUP_DIR=$(ossutil ls -d $LATEST_MONTH_DIR | grep "oss://" | sort -r | head -n 1)
 echo "Latest backup directory is $LATEST_BACKUP_DIR."
 
 # 解析需要恢复的数据库列表
