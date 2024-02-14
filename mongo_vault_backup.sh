@@ -55,7 +55,6 @@ for DB in $DATABASES; do
   echo "Backing up database $DB..."
   mongodump -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --db $DB --archive=$TEMP_BACKUP_DIR/${DB}.gz --gzip
 
-  # mongodump -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --db $DB --archive --gzip | ossutil cp - oss://$MONGO_VAULT_OSS_BUCKET/$BACKUP_PATH/${DB}.gz
   # 检查备份操作是否成功
   if [ $? -eq 0 ]; then
     echo "MongoDB backup for database $DB completed successfully."

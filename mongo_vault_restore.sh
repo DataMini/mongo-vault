@@ -23,16 +23,31 @@ LATEST_MONTH_DIR=$(ossutil ls -d oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_
 
 # 在最新的月份目录中查找最新的备份目录
 LATEST_BACKUP_DIR=$(ossutil ls -d $LATEST_MONTH_DIR | grep "oss://" | sort -r | head -n 1)
-echo "Latest backup directory is $LATEST_BACKUP_DIR."
+echo "Latest backup directory is $LATEST_BACKUP_DIR"
 
 # 解析需要恢复的数据库列表
-DB_MAP="$1"
+DB_MAP=""
+
+# 解析命令行参数
+for arg in "$@"
+do
+    case $arg in
+        --databases=*)
+        DB_MAP="${arg#*=}"
+        shift # 移除当前参数
+        ;;
+        *)
+        # 处理其他参数
+        shift
+        ;;
+    esac
+done
 
 if [ -z "$DB_MAP" ]; then
-  echo "Using databases from environment variable."
+  echo "Using databases from environment variable. $DB_MAP"
   DB_MAP=$MONGO_VAULT_RESTORE_DATABASES
 else
-  echo "Using databases from argument."
+  echo "Using databases from argument. $DB_MAP"
 fi
 
 # 创建临时备份目录
@@ -47,11 +62,11 @@ if [ -z "$DB_MAP" ]; then
   for BACKUP_FILE in $TEMP_RESTORE_DIR/*.gz; do
     DB_NAME=$(basename $BACKUP_FILE .gz)
     echo "Restoring database $DB_NAME from $BACKUP_FILE..."
-    if mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD $DB_NAME --eval "db.stats()" >/dev/null 2>&1; then
+    if mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin $DB_NAME --eval "db.stats()" >/dev/null 2>&1; then
       echo "Database $DB_NAME exists, skipping."
     else
       echo "Restoring database $DB_NAME..."
-      mongorestore -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --gzip --archive=$BACKUP_FILE
+      mongorestore -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --gzip --archive=$BACKUP_FILE
       echo "Database $DB_NAME restored."
     fi
   done
@@ -62,16 +77,16 @@ else
     IFS=':' read -ra NAMES <<< "$PAIR"
     ORIG_NAME="${NAMES[0]}"
     NEW_NAME="${NAMES[1]:-$ORIG_NAME}" # 使用提供的新名称或者如果未提供则使用原名称
-    BACKUP_FILE_PATH="$LATEST_BACKUP_DIR/${ORIG_NAME}.gz"
+    BACKUP_FILE_PATH="$LATEST_BACKUP_DIR${ORIG_NAME}.gz"
     echo "Restoring database $ORIG_NAME to $NEW_NAME from $BACKUP_FILE_PATH..."
     if ossutil stat $BACKUP_FILE_PATH >/dev/null 2>&1; then
-      echo "Downloading backup file for database $ORIG_NAME..."
+      echo "Downloading backup file for database $ORIG_NAME to $TEMP_RESTORE_DIR/${ORIG_NAME}.gz"
       ossutil cp $BACKUP_FILE_PATH $TEMP_RESTORE_DIR/${ORIG_NAME}.gz
-      if mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD $NEW_NAME --eval "db.stats()" >/dev/null 2>&1; then
+      if mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin $NEW_NAME --eval "db.stats()" >/dev/null 2>&1; then
         echo "Database $NEW_NAME exists, skipping."
       else
         echo "Restoring database $ORIG_NAME as $NEW_NAME..."
-        mongorestore -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --gzip --archive=$TEMP_RESTORE_DIR/${ORIG_NAME}.gz --nsFrom="${ORIG_NAME}.*" --nsTo="${NEW_NAME}.*"
+        mongorestore -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --gzip --archive=$TEMP_RESTORE_DIR/${ORIG_NAME}.gz --nsFrom="${ORIG_NAME}.*" --nsTo="${NEW_NAME}.*"
         echo "Database $ORIG_NAME restored as $NEW_NAME."
       fi
     else
