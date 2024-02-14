@@ -82,12 +82,14 @@ else
     if ossutil stat $BACKUP_FILE_PATH >/dev/null 2>&1; then
       echo "Downloading backup file for database $ORIG_NAME to $TEMP_RESTORE_DIR/${ORIG_NAME}.gz"
       ossutil cp $BACKUP_FILE_PATH $TEMP_RESTORE_DIR/${ORIG_NAME}.gz
-      if mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin $NEW_NAME --eval "db.stats()" >/dev/null 2>&1; then
-        echo "Database $NEW_NAME exists, skipping."
-      else
+
+      collections=$(mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin $NEW_NAME --eval "db.getCollectionNames()" --quiet | tail -n 1)
+      if [ "$collections" == "[ ]" ] ; then
         echo "Restoring database $ORIG_NAME as $NEW_NAME..."
         mongorestore -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --gzip --archive=$TEMP_RESTORE_DIR/${ORIG_NAME}.gz --nsFrom="${ORIG_NAME}.*" --nsTo="${NEW_NAME}.*"
         echo "Database $ORIG_NAME restored as $NEW_NAME."
+      else
+        echo "Database $NEW_NAME exists, skipping."
       fi
     else
       echo "Backup file for database $ORIG_NAME not found."
