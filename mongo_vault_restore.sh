@@ -35,12 +35,16 @@ else
   echo "Using databases from argument."
 fi
 
+# 创建临时备份目录
+CURRENT_TIME=$(date +%Y%m%d%H%M%S)
+TEMP_RESTORE_DIR=/tmp/mongo_vault_restore/$CURRENT_TIME
+mkdir -p $TEMP_RESTORE_DIR
 
 # 检查是否设置了数据库列表环境变量
 if [ -z "$DB_MAP" ]; then
   echo "No specific databases to restore, restoring all databases from $LATEST_BACKUP_DIR."
-  ossutil cp -r $LATEST_BACKUP_DIR /tmp/mongo_vault_restore/ --include "*.gz"
-  for BACKUP_FILE in /tmp/mongo_vault_restore/*.gz; do
+  ossutil cp -r $LATEST_BACKUP_DIR $TEMP_RESTORE_DIR --include "*.gz"
+  for BACKUP_FILE in $TEMP_RESTORE_DIR/*.gz; do
     DB_NAME=$(basename $BACKUP_FILE .gz)
     echo "Restoring database $DB_NAME from $BACKUP_FILE..."
     if mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD $DB_NAME --eval "db.stats()" >/dev/null 2>&1; then
@@ -62,12 +66,12 @@ else
     echo "Restoring database $ORIG_NAME to $NEW_NAME from $BACKUP_FILE_PATH..."
     if ossutil stat $BACKUP_FILE_PATH >/dev/null 2>&1; then
       echo "Downloading backup file for database $ORIG_NAME..."
-      ossutil cp $BACKUP_FILE_PATH /tmp/${ORIG_NAME}.gz
+      ossutil cp $BACKUP_FILE_PATH $TEMP_RESTORE_DIR/${ORIG_NAME}.gz
       if mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD $NEW_NAME --eval "db.stats()" >/dev/null 2>&1; then
         echo "Database $NEW_NAME exists, skipping."
       else
         echo "Restoring database $ORIG_NAME as $NEW_NAME..."
-        mongorestore -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --gzip --archive=/tmp/${ORIG_NAME}.gz --nsFrom="${ORIG_NAME}.*" --nsTo="${NEW_NAME}.*"
+        mongorestore -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --gzip --archive=$TEMP_RESTORE_DIR/${ORIG_NAME}.gz --nsFrom="${ORIG_NAME}.*" --nsTo="${NEW_NAME}.*"
         echo "Database $ORIG_NAME restored as $NEW_NAME."
       fi
     else
