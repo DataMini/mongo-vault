@@ -11,6 +11,13 @@ fi
 echo "Configuring OSS tool..."
 ossutil config -e $MONGO_VAULT_OSS_ENDPOINT -i $MONGO_VAULT_OSS_AK -k $MONGO_VAULT_OSS_SK
 
+# 查找最新的月份目录并检查是否存在任何对象
+OBJECT_COUNT=$(ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/ | grep "Object Number is:" | awk '{print $NF}')
+if [ "$OBJECT_COUNT" == "0" ]; then
+  echo "No backup directories found. Exiting..."
+  exit 1
+fi
+
 # 查找最新的月份目录
 LATEST_MONTH_DIR=$(ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/ | awk '{print $NF}' | sort -r | head -n 1)
 
@@ -22,10 +29,10 @@ echo "Latest backup directory is $LATEST_BACKUP_DIR."
 DB_MAP="$1"
 
 if [ -z "$DB_MAP" ]; then
-  echo "Using database map from environment variable."
+  echo "Using databases from environment variable."
   DB_MAP=$MONGO_VAULT_RESTORE_DATABASES
 else
-  echo "Using database map from argument."
+  echo "Using databases from argument."
 fi
 
 
