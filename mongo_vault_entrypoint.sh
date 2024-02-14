@@ -15,6 +15,8 @@ if [ "$ENABLE_MONGO_VAULT_BACKUP" = "true" ]; then
     echo "Cron job configured."
     cron -f &
     echo "Cron service started."
+else
+    echo "Backup mode is disable."
 fi
 
 # 检查是否启用了恢复模式
@@ -25,6 +27,8 @@ if [ "$ENABLE_MONGO_VAULT_RESTORE" = "true" ]; then
     echo "Restoring databases..."
     /usr/local/bin/mongo_vault_restore
     echo "Restoration completed."
+else
+    echo "Restore mode is disable."
 fi
 
 # 等待 MongoDB 进程
