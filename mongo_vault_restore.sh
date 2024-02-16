@@ -17,7 +17,7 @@ log() {
 # 检查必要的环境变量
 if [ -z "$MONGO_VAULT_OSS_AK" ] || [ -z "$MONGO_VAULT_OSS_SK" ] || [ -z "$MONGO_VAULT_OSS_BUCKET" ] || [ -z "$MONGO_VAULT_OSS_URI_PREFIX" ] || [ -z "$MONGO_VAULT_OSS_ENDPOINT" ]; then
   log "One or more environment variables required for restoration are missing."
-  exit 1
+  exit 0
 fi
 
 # 配置 OSS 工具
@@ -28,7 +28,7 @@ ossutil config -e $MONGO_VAULT_OSS_ENDPOINT -i $MONGO_VAULT_OSS_AK -k $MONGO_VAU
 OBJECT_COUNT=$(ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/ | grep "Object Number is:" | awk '{print $NF}')
 if [ "$OBJECT_COUNT" == "0" ]; then
   log "No backup directories found. Exiting..."
-  exit 1
+  exit 0
 fi
 
 # 查找最新的月份目录
