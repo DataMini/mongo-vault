@@ -20,16 +20,19 @@ RUN chmod +x /usr/local/bin/mongo_vault_backup && \
     chmod +x /usr/local/bin/mongo_vault_list_backup
 
 # 设置环境变量
-ENV ENABLE_MONGO_VAULT_BACKUP=false \
+ENV MONGO_INITDB_ROOT_USERNAME="" \
+    MONGO_INITDB_ROOT_PASSWORD="" \
+    ENABLE_MONGO_VAULT_BACKUP=false \
     MONGO_VAULT_BACKUP_DATABASES="" \
     MONGO_VAULT_BACKUP_SCHEDULE="0 3 * * *" \
     MONGO_VAULT_OSS_AK="" \
     MONGO_VAULT_OSS_SK="" \
     MONGO_VAULT_OSS_ENDPOINT="" \
-    MONGO_VAULT_OSS_BUCKET="" \
-    MONGO_VAULT_OSS_URI_PREFIX="" \
+    MONGO_VAULT_OSS_BUCKET="mongo_vault" \
+    MONGO_VAULT_OSS_URI_PREFIX="mongo_vault_mongodb_backups" \
     ENABLE_MONGO_VAULT_RESTORE=false \
-    MONGO_VAULT_RESTORE_DATABASES=""
+    MONGO_VAULT_RESTORE_DATABASES="" \
+    TZ=Asia/Singapore
 
 # 容器启动时执行的命令
 ENTRYPOINT ["mongo_vault_entrypoint"]

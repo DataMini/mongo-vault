@@ -16,10 +16,10 @@ LAST_MONTH=$(date +%Y-%m --date="1 month ago")
 
 # 列出上一个月份
 echo "Listing backups for $LAST_MONTH..."
-ossutil ls -s oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/$LAST_MONTH/
+ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/$LAST_MONTH/ |grep oss | awk '{print $1,$2,$8}'
 
 # 列出当前月份
 echo "Listing backups for $CURRENT_MONTH..."
-ossutil ls -s oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/$CURRENT_MONTH/
+ossutil ls oss://$MONGO_VAULT_OSS_BUCKET/$MONGO_VAULT_OSS_URI_PREFIX/$CURRENT_MONTH/ |grep oss | awk '{print $1,$2,$8}'
 
 echo "Backup listing completed."
