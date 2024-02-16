@@ -60,21 +60,21 @@
 # 参数说明
 
 
-| 参数名称 | 描述                                                                                        | 默认               | 是否必需 |
-|----------|-------------------------------------------------------------------------------------------|------------------|------|
-| `MONGO_INITDB_ROOT_USERNAME` | MongoDB的root用户的用户名。                     | 无密码              | 否    |
-| `MONGO_INITDB_ROOT_PASSWORD` | MongoDB的root用户的密码。                       |                  | 否    |
-| `ENABLE_MONGO_VAULT_BACKUP` | 是否启用自动备份功能。  true或false。              | false            | 否    |
-| `MONGO_VAULT_BACKUP_DATABASES` | 需要备份的数据库列表，以`,`分隔。                | 备份所有数据库          | 否    |
-| `MONGO_VAULT_BACKUP_SCHEDULE` | 备份任务的Cron表达式。                          | 0 3 * * * （每天3点） | 否    |
-| `ENABLE_MONGO_VAULT_RESTORE` | 是否以恢复模式启动数据库实例，运行数据库之后立刻开始恢复数据。    true或false。     | false            | 否    |
-| `MONGO_VAULT_RESTORE_DATABASES` | 需要恢复的数据库列表，以`,`分隔；数据库的原名和新名用`:`分隔；如（db1:newdb1,db2:newdb2)。若未提供新名，则直接用原名恢复。默认恢复所有数据库。为避免数据被覆盖，MongoVault会跳过已经存在的DB，因此强烈建议在恢复时指定新的数据库名。 | 恢复所有数据库          | 否    |
-| `MONGO_VAULT_OSS_AK` | 阿里云OSS的AccessKeyId。                 | ""               | 是    |
-| `MONGO_VAULT_OSS_SK` | 阿里云OSS的AccessKeySecret。              | ""               | 是    |
-| `MONGO_VAULT_OSS_ENDPOINT` | 阿里云OSS的Endpoint。                  | ""               | 是    |
-| `MONGO_VAULT_OSS_BUCKET` | 阿里云OSS的Bucket名称。                 | mongo_backups    | 否    |
-| `MONGO_VAULT_OSS_URI_PREFIX` | OSS中备份文件的存储前缀。备份文件在OSS中的目录结构为：`MONGO_VAULT_OSS_URI_PREFIX/2024-02/20240201033000/`。             | backups_my_db01  | 否    |
-| `TZ` | 时区。                                | Asia/Shanghai    | 否    |
+| 参数名称 | 描述                                                                                                                                     | 默认              | 是否必需 |
+|----------|----------------------------------------------------------------------------------------------------------------------------------------|-----------------|------|
+| `MONGO_INITDB_ROOT_USERNAME` | MongoDB的root用户的用户名。继承 mongo 镜像                                                                                                         | ""               | 否    |
+| `MONGO_INITDB_ROOT_PASSWORD` | MongoDB的root用户的密码。 继承 mongo 镜像                                                                                                             |  ""               | 否    |
+| `ENABLE_MONGO_VAULT_BACKUP` | 是否启用自动备份功能。  true或false。                                                                                                               | false           | 否    |
+| `MONGO_VAULT_BACKUP_DATABASES` | 需要备份的数据库列表，以`,`分隔。                                                                                                                     | 备份所有数据库         | 否    |
+| `MONGO_VAULT_BACKUP_SCHEDULE` | 备份任务的Cron表达式。                                                                                                                          | 0 3 * * * （每天3点） | 否    |
+| `ENABLE_MONGO_VAULT_RESTORE` | 是否以恢复模式启动数据库实例，运行数据库之后立刻开始恢复数据。    true或false。                                                                                         | false           | 否    |
+| `MONGO_VAULT_RESTORE_DATABASES` | 需要恢复的数据库列表，以`,`分隔；数据库的原名和新名用`:`分隔；如（db1:newdb1,db2:newdb2)。若未提供新名，则直接用原名恢复。默认恢复所有数据库。为避免数据被覆盖，MongoVault会跳过已经存在的DB，因此强烈建议在恢复时指定新的数据库名。 | 恢复所有数据库         | 否    |
+| `MONGO_VAULT_OSS_AK` | 阿里云OSS的AccessKeyId。                                                                                                                    | ""              | 是    |
+| `MONGO_VAULT_OSS_SK` | 阿里云OSS的AccessKeySecret。                                                                                                                | ""              | 是    |
+| `MONGO_VAULT_OSS_ENDPOINT` | 阿里云OSS的Endpoint。                                                                                                                       | ""              | 是    |
+| `MONGO_VAULT_OSS_BUCKET` | 阿里云OSS的Bucket名称。                                                                                                                       | mongo_backups   | 否    |
+| `MONGO_VAULT_OSS_URI_PREFIX` | OSS中备份文件的存储前缀。备份文件在OSS中的目录结构为：`MONGO_VAULT_OSS_URI_PREFIX/2024-02/20240201033000/`。                                                    | backups_my_db01 | 否    |
+| `TZ` | 时区。                                                                                                                                    | Asia/Shanghai   | 否    |
 
 
 **注意事项**
