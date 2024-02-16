@@ -19,9 +19,9 @@ set -e
 # 启动 MongoDB 服务
 log "Starting MongoDB service..."
 docker-entrypoint.sh mongod &
+MONGO_PID=$!
 log "MongoDB service started."
 
-MONGO_PID=$!
 
 # 配置自动备份
 if [ "$ENABLE_MONGO_VAULT_BACKUP" = "true" ]; then
