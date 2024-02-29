@@ -81,11 +81,14 @@ if [ -z "$DB_MAP" ]; then
   for backup_file in "$TEMP_RESTORE_DIR"/*.gz; do
     db_name=$(basename "$backup_file" .gz)
     log "Restoring $backup_file..."
-    if mongo $user_and_pass_args $db_name --eval "db.stats()" >/dev/null; then
-      log "Database $db_name exists, skipping."
-    else
+
+    collections=$(mongo $user_and_pass_args $db_name --eval "db.getCollectionNames()" --quiet | tail -n 1)
+    if [ "$collections" == "[ ]" ] ; then
+      log "Restoring database $db_name..."
       mongorestore $user_and_pass_args --gzip --archive="$backup_file" >/dev/null
       log "Database $db_name restored."
+    else
+      log "Database $db_name exists, skipping."
     fi
   done
 else
